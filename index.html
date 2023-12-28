@@ -121,7 +121,7 @@
       </ul>
     </div>
   </div>
-    <div class="blur-background win-message" id="winMessage">
+    <div class="blur-background win-message" id="winMessage" style="display: none;">
       <div class="game-message">
         <h2>Congratulations!</h2>
         <p>You are a True Memer!</p>
@@ -132,7 +132,7 @@
       </div>
     </div>
   
-    <div class="blur-background game-over-message" id="gameOverMessage">
+    <div class="blur-background game-over-message" id="gameOverMessage" style="display: none;">
       <div class="game-message">
         <h2>Game Over!</h2>
         <p>You are NOT a True Memer</p>
@@ -157,6 +157,7 @@
     let disableDeck = false;
     let isPlaying = false;
     let cardOne, cardTwo, timer;
+    let gameStarted = false;
 
     function initTimer() {
         if(timeLeft <= 0) {
@@ -169,7 +170,10 @@
     function flipCard({target: clickedCard}) {
         if(!isPlaying) {
             isPlaying = true;
+            gameStarted = true;
             timer = setInterval(initTimer, 1000);
+            setInterval(checkGameStatus, 1000); 
+            
         }
         if(clickedCard !== cardOne && !disableDeck && timeLeft > 0) {
             flips++;
@@ -241,18 +245,29 @@
         card.addEventListener("click", flipCard);
     });
     function checkGameStatus() {
-      if (matchedCard === 6) {
-        clearInterval(timer);
-        document.getElementById('winMessage').style.display = 'flex';
-        document.querySelector(".blur-background").classList.add("blur");
-      } else if (timeLeft <= 0) {
-        clearInterval(timer);
-        document.getElementById('gameOverMessage').style.display = 'flex';
-        document.querySelector(".blur-background").classList.add("blur");
+  if (isPlaying) {
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      if (matchedCard !== 6) {
+        displayGameOver();
       }
+    } else if (matchedCard === 6) {
+      clearInterval(timer);
+      displayWin();
     }
+  }
+}
 
-    setInterval(checkGameStatus, 1000);
+function displayGameOver() {
+  document.getElementById('gameOverMessage').style.display = 'flex';
+  document.querySelector(".blur-background").classList.add("blur");
+}
+
+function displayWin() {
+  document.getElementById('winMessage').style.display = 'flex';
+  document.querySelector(".blur-background").classList.add("blur");
+}
+
     function restartGame() {
       shuffleCard();
       document.querySelectorAll(".blur-background").forEach(element => {
@@ -260,13 +275,10 @@
         element.classList.remove("blur");
       });
     }
-
-    // Add event listeners for "Play Again" buttons in win and game over messages
     document.querySelectorAll(".win-message .play-again-btn, .game-over-message .play-again-btn").forEach(btn => {
       btn.addEventListener("click", restartGame);
     });
 
-    setInterval(checkGameStatus, 1000);
     
     </script>
         
